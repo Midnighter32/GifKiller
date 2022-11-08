@@ -4,6 +4,8 @@
  * @authorId 270992239184838657
  * @version 1.0.0
  * @description Replace useless gifs
+ * @source https://github.com/Midnighter32/GifKiller/
+ * @updateUrl https://github.com/Midnighter32/GifKiller/blob/main/GifKiller.plugin.js
  */
 
  module.exports = (_ => {
