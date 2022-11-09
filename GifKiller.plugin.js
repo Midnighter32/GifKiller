@@ -2,7 +2,7 @@
  * @name GifKiller
  * @author Calculator
  * @authorId 270992239184838657
- * @version 1.0.0
+ * @version 1.0.1
  * @description Replace useless gifs
  * @source https://github.com/Midnighter32/GifKiller/
  * @updateUrl https://github.com/Midnighter32/GifKiller/blob/main/GifKiller.plugin.js
@@ -52,6 +52,8 @@
 			return template.content.firstElementChild;
 		}
 	} : (([Plugin, BDFDB]) => {
+		var blacklist = [ "270992239184838657", "800306256392093706", "260167377772216322", "735607772024143975" ];
+
 		return class GifKiller extends Plugin {
 			onLoad () {
 				this.modulePatches = {
@@ -76,7 +78,7 @@
 				e.instance.props.channelStream = [].concat(e.instance.props.channelStream);
 				for (let i in e.instance.props.channelStream) {
 					let message = e.instance.props.channelStream[i].content;
-					if (message) {
+					if (message && message.author && blacklist.includes(message.author.id)) {
                         if (BDFDB.ArrayUtils.is(message.attachments)) this.checkMessage(e.instance.props.channelStream[i], message);
                         else if (BDFDB.ArrayUtils.is(message)) for (let j in message) {
 							let childMessage = message[j].content;
@@ -87,29 +89,24 @@
 			}
 
             checkMessage (stream, message) {
-                let {censored, content, embeds} = this.parseMessage(message);
-                let changeMessage = (change) => {
-                    if (change) {
-                        stream.content.embeds = [];
-                        stream.content.attachments[stream.content.attachments.length] = {
-                            content_type: "image/png",
-                            filename: "Untitled.png",
-                            height: 128,
-                            id: "1039507758371852318",
-                            proxy_url: "https://media.discordapp.net/attachments/450790512094478342/1039507758371852318/Untitled.png",
-                            size: 1760,
-                            spoiler: false,
-                            url: "https://cdn.discordapp.com/attachments/450790512094478342/1039507758371852318/Untitled.png",
-                            width: 369,
-                        }
-                    }
-				};
-				changeMessage(censored);
+                if (this.parseMessage(message)) {
+					stream.content.embeds = [];
+					stream.content.attachments[stream.content.attachments.length] = {
+						content_type: "image/png",
+						filename: "Untitled.png",
+						height: 128,
+						id: "1039507758371852318",
+						proxy_url: "https://media.discordapp.net/attachments/450790512094478342/1039507758371852318/Untitled.png",
+						size: 1760,
+						spoiler: false,
+						url: "https://cdn.discordapp.com/attachments/450790512094478342/1039507758371852318/Untitled.png",
+						width: 369,
+					}
+				}
             }
 
             parseMessage (message) {
                 let censored = false;
-                let content = message.content;
 				let embeds = [].concat(message.embeds);
 
                 for (let i in embeds)
@@ -118,7 +115,7 @@
                         censored = true;
                 }
 				
-                return {censored, content, embeds};
+                return censored;
             }
 		};
 	})(window.BDFDB_Global.PluginUtils.buildPlugin(changeLog));
